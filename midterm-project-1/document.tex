@@ -1,0 +1,970 @@
+\documentclass[12pt, a4paper]{report}
+
+% --- Essential Packages ---
+\usepackage{fontspec}
+\usepackage[vietnamese,english]{babel}
+% \setmainfont{Times New Roman}
+\usepackage{geometry}       % Document margins
+\geometry{a4paper, margin=1in}
+
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, arrows.meta, positioning, calc, angles, quotes}
+
+% --- Graphics and Tables ---
+\usepackage{float}
+\usepackage{array}       % Include images
+\usepackage{graphicx}       % Include images
+\graphicspath{{images/}}    % Path to images folder
+\usepackage{booktabs}       % Professional table formatting
+\usepackage{caption}        % Customizing captions
+\usepackage{subcaption}     % Subfigures
+
+% --- Math and Symbols ---
+\usepackage{amsmath, amssymb, amsfonts, amsthm} % Math formatting
+
+% --- Formatting and Utilities ---
+\usepackage{parskip}        % Better paragraph spacing (no indentation)
+\usepackage{fancyhdr}       % Custom headers/footers
+\usepackage[hidelinks]{hyperref} % Clickable links without boxes
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=magenta,
+	urlcolor=blue,
+	citecolor=blue
+}
+\let\oldhref\href
+\renewcommand{\href}[2]{\oldhref{#1}{#2}\footnote{\url{#1}}}
+
+
+\usepackage{enumitem}
+\usepackage{pgfplots}
+\usepackage{derivative}
+
+\setlength{\extrarowheight}{2pt}
+
+\AtBeginDocument{\renewcommand{\bibname}{References}}
+
+% --- Document Information ---
+\title{Linearization of a Nonlinear Mechanical System}
+\author{Nguyễn Đức Tuân}
+\date{\today}
+
+\pgfplotsset{compat=1.18}
+\setlist[enumerate]{
+	leftmargin=*,
+	listparindent=0pt,
+	itemindent=0pt
+}
+
+%\usepackage{letltxmacro}
+%\LetLtxMacro{\originaleqref}{\eqref}
+%\renewcommand{\eqref}{\textcolor{blue}{\originaleqref}}
+%%\renewcommand{\eqref}{Eq.~\originaleqref}
+\usepackage{letltxmacro}
+
+\LetLtxMacro{\originaleqref}{\eqref}
+\renewcommand{\eqref}[1]{\originaleqref{#1}}
+\newcommand{\figref}{Figure.~\ref}
+\newcommand{\secref}{Section~\ref}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{theorems}
+
+\newtcbtheorem{mytheo}{Theorem}%
+{colback=blue!8,colframe=blue!90,fonttitle=\bfseries}{th}
+
+\begin{document}
+	\begin{titlepage}
+		\input{tikz_code/cover_outline}
+		
+		\begin{center}
+			\large \textbf{University of Science -- Vietnam National University Hanoi} \\
+			\normalsize \textbf{Faculty of Mathematics, Mechanics and Informatics}
+		\end{center}
+		
+		\vspace{4cm}
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\includegraphics[width=10cm]{logo.png}
+			\end{center}
+		\end{figure}
+		
+		\vspace{1cm}
+		
+		
+		\begin{center}
+			\textbf{{\LARGE PROJECT REPORT}} \\
+			\vspace{0.4cm}
+			\textbf{\Large Linearization of a Nonlinear Mechanical System}
+		\end{center}
+		
+		\vspace{1.5cm}
+		
+		\begin{table}[h]
+			\large
+			\begin{tabular}{rrl}
+				\hspace{5 cm}
+				& \textbf{Student:} & 24002099 -- Nguyễn Đức Tuân \\
+				& \textbf{Course:} & Ordinary Differential Equation \\
+				& & MAT2403 \\
+			\end{tabular}
+		\end{table}
+		\vspace{6cm}
+		\begin{center}
+			{Hanoi, 03/2026}
+		\end{center}
+	\end{titlepage}
+	
+	\newpage
+	\begin{center}
+		{\Huge \textbf{Declaration of Authorship}}
+		\vspace{1cm}
+	\end{center}
+
+	I, \textit{Nguyễn Đức Tuân}, hereby declare that this report titled\textit{ ``Linearization of a Nonlinear Mechanical System"} is my own work. It reflects my understanding and analysis of the documents assigned to me.
+	
+	I confirm that:
+	\begin{itemize}
+		\item All sources used are properly cited and acknowledged.
+		\item This report has not been submitted for any other course or purpose.
+		\item Any assistance received in the preparation of this work has been explicitly stated and acknowledged.
+	\end{itemize}
+	
+	All materials associated with this project will be made available in the corresponding repository in the near future. The repository can be accessed at:
+	\begin{center}
+		\url{https://github.com/PanyoPie/VNUHUS-MAT2403-ODE} \\
+		or \\
+		\url{https://s.tunaa.io.vn/mat2403}
+	\end{center}
+	
+	Should any issues arise, including but not limited to missing content or potential inaccuracies, please do not hesitate to contact the author via one of the following channels:
+
+	\begin{tabular}{ll}
+		Main Email:    & \href{mailto:nguyenductuan11122006@gmail.com}{nguyenductuan11122006@gmail.com} \\
+		University (VNU-HUS) Email:  & \href{mailto:24002099@hus.edu.vn}{24002099@hus.edu.vn} \\
+		Personal Email:& \href{mailto:hi@tunaa.io.vn}{hi@tunaa.io.vn} \\
+	\end{tabular}
+	
+	
+	\begin{flushright}
+		\noindent
+		\textbf{Author:} \\
+		Nguyễn Đức Tuân
+		
+		\vspace{0.2cm}
+		
+		\noindent
+		\textbf{Date:} \\
+		15/03/2026
+	\end{flushright}
+	
+	\newpage
+	\begin{center}
+		{\Huge \textbf{Abstract}}
+		\vspace{1cm}
+	\end{center}
+	This project studies a nonlinear mechanical system consisting of a mass attached to two identical springs and constrained to horizontal motion. The system is governed by a second-order differential equation with a nonlinear restoring force.
+	
+	A linear approximation is obtained using a first-order Taylor expansion about the equilibrium position, leading to a simplified model of harmonic motion. The validity of this approximation is examined by comparing it with the original nonlinear system.
+	
+	Numerical solutions are used to analyze the behavior of both models for different values of the parameter $h$, which represents the initial extension of the springs.
+	
+	
+	\tableofcontents
+	\chapter{Introduction}
+	
+	\section{Description of the Mechanical system}
+	The following description is based on \textit{\textcolor{blue}{Project 2: Linearization of a Nonlinear Mechanical System, Chapter 4: Second Order Linear Equations}} of \cite{mainbook}.
+	
+	An undamped, one degree-of-freedom mechanical system with forces dependent on position is modeled by a second order differential equation,
+	\begin{equation}
+		mx'' + f(x) = 0, \label{eq:1}
+	\end{equation}
+	where $x$ denotes the position coordinate of a particle of mass $m$ and $-f (x)$ denotes the force acting on the mass. We assume that $f(0) = 0$, so $\mathbf{x} = 0\mathbf{i} + 0\mathbf{j}$ is a critical point of the equivalent dynamical system. If $f(x)$ has two derivatives at $x = 0$, then its second degree Taylor formula with remainder at $x = 0$ is
+	\begin{equation}
+		f(x) = f'(0)x + \frac{1}{2}f''(z)x^2, \label{eq:2}
+	\end{equation}
+	where $0 < z < x$ and we have used the fact that $f(0) = 0$.
+	
+	If the operating range of the system is such that $\dfrac{f''(z)x^2}{2}$ is always negligible compared to the linear term $f'(0)x$, then the nonlinear equation \eqref{eq:1} may be approximated by its linearization,
+	\begin{equation}
+		mx'' + f'(0)x = 0. \label{eq:3}
+	\end{equation}
+	
+	Under these conditions \eqref{eq:1} may provide valuable information about the motion of the physical system. There are instances, however, where nonlinear behavior of $f(x)$, represented by the remainder term $\dfrac{f''(z)x^2}{2}$ in \eqref{eq:2}, is not negligible relative to $f'(0)x$ and \eqref{eq:3} is a poor approximation to the actual system. In such cases, it is necessary to study the nonlinear system directly.
+	
+	In this project, we explore some of these questions in the context of a simple nonlinear system consisting of a mass attached to a pair of identical springs and confined to motion in the horizontal direction on a friction-less surface, as shown in \figref{fig:1}. The springs are assumed to obey Hooke's law, $F_s(\Delta y) = -k\Delta y$, where $\Delta y$ is the change in length of each spring from its equilibrium length $L$.
+	
+	When the mass is at its equilibrium position $x = 0$, both springs are assumed to have length $L + h$ with $h \ge 0$. Thus in the rest state both springs are either elongated and under tension $(h > 0)$ or at their natural rest length and under zero tension $(h = 0)$.
+	
+	\begin{figure}[hbt!]
+		\centering
+		\input{tikz_code/spring_mass}
+		\caption{Horizontal motion of a mass attached to two identical springs.}
+		\label{fig:1}
+	\end{figure}
+	
+	\section{Purpose of ``Linearization"}
+	\textbf{Linearization} is used to approximate a nonlinear system by a simpler linear system near an equilibrium point.
+	
+	Nonlinear differential equations are often difficult (or impossible) to solve exactly. By replacing the nonlinear force function with its first-order Taylor approximation around $x=0$, we obtain a linear differential equation that is much easier to analyze.
+	
+	The purpose of linearization in this project is:
+	\begin{enumerate}
+		\item To simplify the nonlinear equation of motion.
+		\item To approximate the system behavior for small displacements.
+		\item To determine whether the equilibrium point behaves like a harmonic oscillator.
+		\item To estimate the natural frequency of oscillation.
+	\end{enumerate}
+	
+	Linearization provides insight into local stability and oscillatory behavior without solving the full nonlinear equation.
+	
+	\section{Objective of the project}
+	The objective of this project is to analyze and compare the behavior of a nonlinear mechanical system and its linear approximation.
+	
+	Specifically, the project aims to:
+	\begin{enumerate}
+		\item Derive the nonlinear differential equation governing the motion of the mass.
+		\item Obtain the linearized equation about the equilibrium position.
+		\item Determine the natural frequency of the linearized system.
+		\item Compare the nonlinear force function with its Taylor approximations.
+		\item Investigate how the accuracy of the linear approximation depends on the parameter $h$.
+		\item Compare numerical solutions of the nonlinear and linear systems for different values of $h$.
+		\item Identify conditions under which the linear model fails to accurately represent the physical system.
+	\end{enumerate}
+	
+	Through this analysis, the project demonstrates when linearization is valid and when nonlinear effects become essential for accurately describing the system's motion.
+	
+	\chapter{Problems}
+	\section{Problem 1: Derivation of the Nonlinear Equation}
+	\subsection{Problem description}
+	Show that the differential equation describing the motion of the mass in \figref{fig:1} is
+	\begin{equation}
+		mx'' + 2kx \left[ 1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}} \right] = 0. \label{eq:problem1:1}
+	\end{equation}
+	
+	\subsection{Proof}
+	
+	\begin{figure}[hbt!]
+		\centering
+		\input{tikz_code/zoomed_spring_mass}
+		\caption{Geometric relation describing the displacement of the mass.}
+	\end{figure}
+	
+	At horizontal displacement $x$, using the Pythagorean theorem, the length of each spring is $\sqrt{(L + h)^2 + x^2}$ because when $x = 0$, each spring has length $L + h$.
+	
+	So the extension of each spring is $\Delta y = \sqrt{(L + h)^2 + x^2} - L$.
+	
+	By Hooke’s law\footnote{As mentioned above in the statement, $F_s(\Delta y) = -k\Delta y$, where $\Delta y$ is the change in length of each spring from its equilibrium length $L$.}, the algebraic value of the spring force is $-k \Delta y$.
+	
+	To calculate the horizontal component of the force from one spring, multiply the spring force by $\cos{(\angle ACB)}$, we have
+	\begin{align*}
+		&-k \Delta y \cdot \cos{(\angle ACB)} \\
+		= &-k \Delta y \cdot \dfrac{x}{\sqrt{(L + h)^2 + x^2}}.
+	\end{align*}
+	
+	Since there are two springs, we multiply the force by $2$, and replace $\Delta y$ by $\sqrt{(L + h)^2 + x^2} - L$. The total horizontal restoring force is
+	\begin{align*}
+		F(x) &= -2k \left[\sqrt{(L + h)^2 + x^2} - L\right] \frac{x}{\sqrt{(L + h)^2 + x^2}} \\
+		&= -2kx \frac{\sqrt{(L + h)^2 + x^2} - L}{\sqrt{(L + h)^2 + x^2}} \\
+		&= -2kx \left[1 - \frac{L}{\sqrt{(L + h)^2 + x^2}}\right].
+	\end{align*}
+	
+	\begin{mytheo}{Newton's Second Law of Motion {\hypersetup{citecolor=white}{\cite{openstax_newton2}}}}{}
+		The acceleration of a system is directly proportional to and in the same direction as the net external force acting on the system and is inversely proportion to its mass. In equation form, \textbf{Newton's second law} is
+		\begin{equation*}
+			\vec{a} = \dfrac{\vec{F}}{m},
+		\end{equation*}
+		where $\vec{a}$ is the acceleration, $\vec{F}$ is the net force, and $m$ is the mass. This is often written in the more familiar form
+		\begin{equation*}
+			\vec{F} = \sum \vec{F} = m \cdot \vec{a},
+		\end{equation*}
+		but the first equation gives more insight into what Newton's second law means. When only the magnitude of force and acceleration are considered, this equation can be written in the simpler scalar form:
+		\begin{equation*}
+			\left|\vec{F}\right| = F = m \cdot a.
+		\end{equation*}
+	\end{mytheo}
+	
+	After simplifying $F(x)$, using Newton's Second Law of Motion,
+	\begin{equation*}
+		mx'' = F(x) \Leftrightarrow mx'' - F(x) = 0,
+	\end{equation*}
+	we get:
+	\begin{equation*}
+		\boxed{mx'' + 2kx \left[1 - \frac{L}{\sqrt{(L + h)^2 + x^2}}\right] = 0.} \tag*{\(\square\)}
+	\end{equation*}
+	
+	\section{Problem 2: Linearization at the Equilibrium Point} \label{sec:problem2}
+	\subsection{Problem description}
+	\begin{enumerate}[label=\textbf{(\arabic*)}]
+		\item Find the linearization of \eqref{eq:problem1:1} at $x = 0$.
+		\item In the case that $h > 0$, what is the natural frequency of the linearized system? Explain how the natural frequency of the linearized system depends on $h$ and $L$.
+		\item On the same set of coordinate axes, plot the graphs of
+		\[
+		y = f(x) = 2kx \left[ 1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}} \right],
+		\]
+		its first degree Taylor polynomial $y_1 = f'(0)x$, and its third degree Taylor polynomial $y_3 = f'(0)x + \dfrac{f''(0)x^2}{2} + \dfrac{f'''(0)x^3}{6}$.
+		
+		Construct these plots for each of the following sets of parameter values:
+		\begin{enumerate}[label=\textbf{\color{blue}\roman*.}]
+			\item $L = 1, k = 1, h = 1$
+			\item $L = 1, k = 1, h = 0.5$
+			\item $L = 1, k = 1, h = 0.1$
+			\item $L = 1, k = 1, h = 0$
+		\end{enumerate}
+		
+		\item Find the dependence on $h$ of the approximate range of values of $x$ such that $|y - y_1| \approx |y_3 - y_1| < 0.1$.
+		\item In the case that $h = 0$, explain why the solution of the linearized equation obtained in \secref{sec:problem2} (Problem 2) is a poor approximation to the solution of the nonlinear equation \eqref{eq:problem1:1} for any initial conditions other than $x(0) = 0$, $x'(0) = 0$.
+	\end{enumerate}
+	
+	\subsection{Linearization of the Original Equation}
+	To linearize this equation about the equilibrium point $x = 0$, define
+	\begin{equation*}
+		g(x) = 2kx \left[1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}}\right],
+	\end{equation*}
+	so that the equation may be written as
+	\begin{equation}
+		mx'' + g(x) = 0. \label{eq:problem2:nonlinearized}
+	\end{equation}
+	
+	Using the linearization formula about $x = 0$, the nonlinear term $g(x)$ is approximated by its first-degree Taylor polynomial: $g(x) \approx g(0) + g'(0)x$. Since
+	\begin{equation*}
+		g(0) = 2k \cdot 0 \cdot \left[1 - \dfrac{L}{\sqrt{(L + h)^2 + 0^2}}\right] = 0,
+	\end{equation*}
+	the linearized equation, \eqref{eq:problem2:nonlinearized}, becomes:
+	\begin{equation}
+		mx'' + g'(0)x = 0. \label{eq:problem2:linearized}
+	\end{equation}
+	
+	The last objective is to calculate the value of $g'(0)$.
+	
+	Write:
+	\begin{equation*}
+		g(x) = 2kx \cdot h(x) \text{, with } h(x) = 1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}}.
+	\end{equation*}
+	
+	According to the product rule of differentiation, we get:
+	\begin{align*}
+		g'(x) &= 2k \cdot h(x) + 2kx \cdot h'(x) \\
+		\Rightarrow g'(0) &= 2k \cdot h(0) + 2k \cdot 0 \cdot h'(x) \\
+		&= 2k \left[1 - \dfrac{L}{\sqrt{(L + h)^2 + 0^2}}\right] + 0 \\
+		&= 2k \left[1 - \dfrac{L}{L + h}\right] \\
+		&= 2k \left[\dfrac{L + h - L}{L + h}\right] \\
+		&= \dfrac{2kh}{L + h}.
+	\end{align*}
+	
+	Substituting $g'(0) = \dfrac{2kh}{L + h}$ into \eqref{eq:problem2:linearized}, we obtain the complete linearized equation:
+	\begin{equation}
+		mx'' + \dfrac{2kh}{L + h}x = 0. \label{eq:problem2:answer}
+	\end{equation}
+	
+	Divide both sides of \eqref{eq:problem2:answer} by $m$ $(m \ne 0)$, we acquire the final answer:
+	\begin{equation*}
+		\boxed{x'' + \dfrac{2kh}{m(L + h)}x = 0.}
+	\end{equation*}
+	
+	This is the required linearized differential equation describing the motion near the equilibrium position.
+	
+	\subsection{The dependence of the Natural Frequency on $h$ and $L$}
+	Compare with the standard harmonic oscillator form \cite{harmonic_oscialltor}
+	\begin{equation*}
+		x'' + \omega^2 x = 0,
+	\end{equation*}
+	then
+	\begin{equation*}
+		\omega^2 = \dfrac{2kh}{m(L + H)} \Rightarrow \omega = \sqrt{\dfrac{2kh}{m(L + h)}}.
+	\end{equation*}
+	
+	The natural frequency is
+	\begin{equation}
+		\boxed{f = \dfrac{\omega}{2\pi} = \dfrac{1}{2\pi} \sqrt{\dfrac{2kh}{m(L + h)}}.}
+	\end{equation}
+	
+	To study how $f$ depends on $h$ and $L$, assume $m$ and $k$ are fixed positive constants, we can rewrite the formula as
+	\begin{equation}
+		f = \dfrac{1}{2\pi} \sqrt{\dfrac{2kh}{m(L + h)}} = \left(\dfrac{1}{2\pi} \sqrt{\dfrac{2k}{m}}\right) \cdot \sqrt{\dfrac{h}{L + h}}. \label{eq:problem2:frequency_grouped}
+	\end{equation}
+	
+	Since $m$ and $k$ are fixed, the term $\dfrac{1}{2\pi} \sqrt{\dfrac{2k}{m}}$ is also a fixed constant. So the dependence on $h$ is entirely through the ratio $\dfrac{h}{L + h}$.
+	
+	\begin{enumerate}[label=\textbf{Case \arabic*:}]
+		\item $h = 0$, then $f = \left(\dfrac{1}{2\pi} \sqrt{\dfrac{2k}{m}}\right) \cdot \sqrt{\dfrac{0}{L + 0}} = 0.$ 
+		
+		This means the linearized system has zero natural frequency. In other words, the linearized equation no longer behaves like a standard oscillating spring-mass system. Physically, this happens because when $h = 0$, the springs are not initially stretched, so the restoring force has no linear term near equilibrium.
+		
+		\item $h > 0$. Consider $g(h) = \dfrac{h}{L + h}$ as a function of $h$, we observe its derivative:
+		\begin{align*}
+			g'(h) &= \odv*{\left(\dfrac{h}{L + h}\right)}{h} \\
+			&= \frac{1 \cdot (L + h) - h \cdot 1}{(L + h)^2} \\
+			&= \frac{L}{(L + h)^2}.
+		\end{align*}
+		
+		Because $g'(h) > 0$ for all $L > 0$, $g(h)$ is an increasing function, it follows that $f$ also increases as $h$ increases.
+		
+		Physically, increasing $h$ means the springs are more stretched in the equilibrium position. That increases the effective restoring force for small horizontal displacements, so the system oscillates faster.
+		
+		\item $h \to 0^+$, the natural frequency also approaches $0$ due to the fact that:
+		\begin{equation*}
+			\lim_{h \to 0^+} \dfrac{h}{L + h} = \dfrac{0}{L + 0} = 0.
+		\end{equation*}
+		
+		\item $h \to +\infty$. $\displaystyle \lim_{h \to +\infty} \dfrac{h}{L + h} = 1$. The natural frequency approaches $\dfrac{1}{2\pi} \sqrt{\dfrac{2k}{m}}$, which is the largest possible limiting value of the natural frequency. \\
+	\end{enumerate}
+	
+	The equation \eqref{eq:problem2:frequency_grouped} is also used to study dependence of the linearized system on $L$. With $h$ fixed, we see that the relevant factor is still $\dfrac{h}{L + h}$.
+	
+	Because the two springs are real physical objects, the parameter $L$ must be positive.
+	
+	Consider the derivative of $g(L) = \dfrac{h}{L + h}$, with $L$ as a variable and $h$ as a fixed constant:
+	\begin{equation*}
+		g'(L) = \odv*{\left(\dfrac{h}{L + h}\right)}{L} = \frac{-h}{(L + h)^2} < 0 \; \forall \; L > 0, h > 0.
+	\end{equation*}
+	
+	Therefore, $f$ is a decreasing function of $L$. Physically, a larger value of $L$ means the unstretched spring length is longer relative to the amount of pre-stretch $h$. This reduces the effective horizontal restoring force near equilibrium, so the oscillation becomes slower.
+	
+	\begin{enumerate}[label=\textbf{Case \arabic*:}]
+		\item $L \to 0^+$. $\displaystyle \lim_{L \to 0^+} \dfrac{h}{L + h} = \dfrac{h}{0 + h} = 1 \Rightarrow \lim_{L \to 0^+} f = \dfrac{1}{2\pi} \sqrt{\dfrac{2k}{m}}.$
+		
+		\item $L \to +\infty$. $\displaystyle \lim_{L \to 0^+} \dfrac{h}{L + h} = 0 \Rightarrow \lim_{L \to 0^+} f = 0.$
+	\end{enumerate}
+	
+	Thus, for fixed $h$, a very large spring natural length leads to a very small natural frequency.
+	
+	\subsection{Plot the Graphs of $f(x)$ and its Taylor Approximations}
+	In order to evaluate $f'(0)$, $f''(0)$ and $f'''(0)$, we have to expand $f(x)$ about $x = 0$ using Taylor polynomials.
+	
+	Consider the term
+	\begin{align*}
+		\dfrac{L}{\sqrt{(L + h)^2 + x^2}} &= \dfrac{L}{L + h}  \sqrt{\dfrac{(L + h)^2}{(L + h)^2 + x^2}} \\
+		&= \dfrac{L}{L + h} \left[ \dfrac{(L + h)^2 + x^2}{(L + h)^2} \right]^{-1/2} \\
+		&= \dfrac{L}{L + h} \left[ 1 + \dfrac{x^2}{(L + h)^2} \right]^{-1/2}.
+	\end{align*}
+	
+	Using the binomial expansion
+	\begin{equation*}
+		\left( 1 + u \right)^{-1/2} = 1 - \frac{1}{2}u + \frac{3}{8}u^2 + \dots
+	\end{equation*}
+	with $u = \dfrac{x^2}{(L + h)^2}$. Then
+	\begin{equation*}
+		\dfrac{L}{\sqrt{(L + h)^2 + x^2}} = \dfrac{L}{L + h} - \dfrac{L}{2(L + h)^3}x^2 + \mathcal{O}(x^4).
+	\end{equation*}
+	
+	Hence
+	\begin{align*}
+		1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}} &= 1 - \dfrac{L}{L + h} + \dfrac{L}{2(L + h)^3}x^2 + \mathcal{O}(x^4) \\
+		&= \dfrac{h}{L + h} + \dfrac{L}{2(L + h)^3}x^2 + \mathcal{O}(x^4).
+	\end{align*}
+	
+	Multiplying by $2kx$,
+	\begin{align}
+		f(x) &= 2kx \left[ 1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}} \right] \\
+		&= \dfrac{2kh}{L + h}x + \dfrac{kL}{(L + h)^3}x^3 + \mathcal{O}(x^5). \label{eq:problem2:fx_approx}
+	\end{align}
+	
+	\begin{enumerate}[label=\textbf{Step \arabic*.}]
+		\item Evaluate $f'(0)$:
+		\begin{align}
+			f'(x) &= \dfrac{2kh}{L + h} + \dfrac{3kL}{(L + h)^3}x^2 + \mathcal{O}(x^4) \\
+			\Rightarrow f'(0) &= \dfrac{2kh}{L + h}. \label{eq:problem2:f_comma_0}
+		\end{align}
+		
+		\item Evaluate $f''(0)$:
+		\begin{align*}
+			f''(x) &= \left[f'(x)\right]' = \dfrac{6kL}{(L + h)^3}x + \mathcal{O}(x^3) \\
+			\Rightarrow f''(0) &= 0.
+		\end{align*}
+		
+		\item Evaluate $f'''(0)$:
+		\begin{align*}
+			f'''(x) &= \left[f''(x)\right]' = \dfrac{6kL}{(L + h)^3} + \mathcal{O}(x^2) \\
+			\Rightarrow f'''(0) &= \dfrac{6kL}{(L + h)^3}.
+		\end{align*}
+	\end{enumerate}
+	
+	Hence
+	\begin{equation}
+		\begin{cases}
+			y &= f(x) = 2kx \left[1 - \dfrac{L}{\sqrt{(L + h)^2 + x^2}}\right] \vspace{5pt} \\
+			y_1 &= f'(0)x = \dfrac{2kh}{L + h}x \vspace{5pt} \\
+			y_3 &= f'(0)x + f''(0) \dfrac{x^2}{2} + f'''(0) \dfrac{x^3}{6} = \dfrac{2kh}{L + h}x + \dfrac{kL}{(L + h)^3}x^3 \label{eq:problem2:cases_of_taylor}
+		\end{cases}.
+	\end{equation}
+	
+	\newcommand{\springplot}[3]{%
+		\begin{tikzpicture}
+			\begin{axis}[
+				axis lines=middle,
+				xlabel={$x$},
+				ylabel={$y$},
+				xmin=-3.5, xmax=3.5,
+				ymin=-3.5, ymax=3.5,
+				domain=-3:3,
+				samples=200,
+				legend style={at={(0.98,0.02)}, anchor=south east},
+				width=8cm,
+				height=8cm,
+				]
+				% #1 = L, #2 = k, #3 = h
+				
+				% Nonlinear function f(x)
+				\addplot[
+				blue,
+				restrict y to domain=-3.5:3.5,
+				thick
+				]
+				{2*(#2)*x*(1-(#1)/sqrt(((#1)+(#3))^2+x^2))};
+				\addlegendentry{$f$}
+				
+				% First-degree Taylor polynomial y1
+				\addplot[
+				green!60!black,
+				dashed,
+				restrict y to domain=-3.5:3.5,
+				ultra thick
+				]
+				{2*(#2)*(#3)/((#1)+(#3))*x};
+				\addlegendentry{$y_1$}
+				
+				% Third-degree Taylor polynomial y3
+				\addplot[
+				red,
+				restrict y to domain=-3.5:3.5,
+				ultra thick
+				]
+				{2*(#2)*(#3)/((#1)+(#3))*x + (#2)*(#1)/(((#1)+(#3))^3)*x^3};
+				\addlegendentry{$y_3$}
+			\end{axis}
+		\end{tikzpicture}%
+	}
+	
+	These are plots for each of the following sets of parameter values:
+	\begin{enumerate}[label=\textbf{\color{blue}\roman*.}]
+		\item $L = 1, k = 1, h = 1$
+		\item $L = 1, k = 1, h = 0.5$
+		\item $L = 1, k = 1, h = 0.1$
+		\item $L = 1, k = 1, h = 0$
+	\end{enumerate}
+	
+	Each figure consists of $3$ graphs, which are $y = f(x)$, $y_1$ and $y_3$, respectively.
+	
+	Configurations for each graph:
+	\begin{itemize}
+		\item $y = f(x)$: \textcolor{blue}{Thin blue line.}
+		\item $y_1$: \textcolor{green!60!black}{Dashed dark green line.}
+		\item $y_2$: \textbf{\textcolor{red}{Thick red line.}}
+	\end{itemize}
+	
+	\newpage
+	\begin{table}[h]
+		\centering
+		\setlength{\tabcolsep}{16pt}
+		\renewcommand{\arraystretch}{1.4}
+		\begin{tabular}{cc}
+			\springplot{1}{1}{1} & \springplot{1}{1}{0.5} \\[2em]
+			\small $L=1,\ k=1,\ h=1$ & \small $L=1,\ k=1,\ h=0.5$ \\[3em]
+			
+			\springplot{1}{1}{0.1} & \springplot{1}{1}{0} \\[2em]
+			\small $L=1,\ k=1,\ h=0.1$ & \small $L=1,\ k=1,\ h=0$
+		\end{tabular}
+	\end{table}
+	
+	\subsection{The acceptable Approximate Range of $x$}
+	The subject of the problem is to determine how the range of values of $x$, for which the linear approximation is sufficiently accurate, depends on the parameter $h$.
+	
+	More specifically, $y = f(x)$ represents the original nonlinear function, $y_1$ is its linear approximation, and $y_3$ is the third-degree Taylor approximation. Near $x = 0$, the error in the linear approximation satisfies
+	\begin{equation*}
+		|y - y_1| \approx |y_3 - y_1|.
+	\end{equation*}
+	
+	Thus, the condition
+	\begin{equation}
+		|y - y_1| \approx |y_3 - y_1| < 0.1 \label{eq:problem2:approx_condition}
+	\end{equation}
+	is used to estimate the range of $x$ for which the linear approximation remains accurate within a tolerance of $0.1$.
+	
+	Using the Taylor approximation, which is \eqref{eq:problem2:cases_of_taylor}, from the first-degree and third-degree expansion:
+	\begin{equation*}
+		\begin{cases}
+			y_1 &= \dfrac{2kh}{L + h}x \vspace{5pt} \\
+			y_3 &= \dfrac{2kh}{L + h}x + \dfrac{kL}{(L + h)^3}x^3
+		\end{cases}.
+	\end{equation*}
+	
+	Thus,
+	\begin{align*}
+		\left|y_3 - y_1\right| &= \left|\dfrac{2kh}{L + h}x - \left(\dfrac{2kh}{L + h}x + \dfrac{kL}{(L + h)^3}x^3\right)\right| \\
+		&= \left|\dfrac{2kh}{L + h}x - \dfrac{2kh}{L + h}x - \dfrac{kL}{(L + h)^3}x^3\right| \\
+		&= \left|- \dfrac{kL}{(L + h)^3}x^3\right| \\
+		&= \left|\dfrac{kL}{(L + h)^3}x^3\right|.
+	\end{align*}
+	
+	The condition \eqref{eq:problem2:approx_condition} becomes
+	\begin{align*}
+		|y_3 - y_1| &< 0.1 \\
+		\left|\dfrac{kL}{(L + h)^3}x^3\right| &< 0.1 \\
+		\left|x^3\right| &< 0.1 \cdot \dfrac{(L + h)^3}{kL} \\
+		\left|x\right|^3 &< \dfrac{0.1 (L + h)^3}{kL} \\
+		\left|x\right| &< \left(\dfrac{0.1 (L + h)^3}{kL}\right)^{1/3} \\
+		\left|x\right| &< \left(\dfrac{0.1}{kL}\right)^{1/3}(L + h).
+	\end{align*}
+	
+	Therefore, the approximate range of values of $x$ is
+	\begin{equation*}
+		\boxed{\left|x\right| < \left(\dfrac{0.1}{kL}\right)^{1/3}(L + h),}
+	\end{equation*}
+	considering $k$, $L$ are positive real numbers.
+	
+	This shows that the range of validity of the linear approximation increases linearly with  $L + h$, and hence increases as $h$ increases.
+	
+	\subsection{Breakdown of the Linear Approximation for $h = 0$}
+	In the case $h = 0$, using the evaluated term in \eqref{eq:problem2:f_comma_0}, the coefficient of the linear term is
+	\begin{equation*}
+		f'(0) = \left.\dfrac{2kh}{L + h} \right|_{h = 0} = 0.
+	\end{equation*}
+	
+	Thus, the linearized equation, \eqref{eq:problem2:answer}, becomes
+	\begin{equation}
+		mx'' = 0 \Leftrightarrow x'' = 0. \label{eq:problem2:second_order_eq_by_t}
+	\end{equation}
+	
+	Integrating \eqref{eq:problem2:second_order_eq_by_t} twice with respect to the time variable $t$, we obtain
+	\begin{align*}
+		x''(t) &= 0 \\
+		x'(t) &= C_1 \\
+		x(t) &= C_1 t + C_2,
+	\end{align*}
+	where $C_1$ and $C_2$ are two constants of integration.
+	
+	The $x(t)$ function represents uniform motion with constant velocity and contains \textbf{no restoring force}.
+	
+	On the other hand, the original nonlinear equation still remains
+	\begin{equation}
+		mx'' + 2kx \left( 1 - \dfrac{L}{\sqrt{L^2 + x^2}} \right) = 0. \label{eq:problem2:h_is_0}
+	\end{equation}
+	
+	For small $x$, expand the nonlinear term, using the Taylor approximation \eqref{eq:problem2:fx_approx}, with $h = 0$, we get
+	\begin{align*}
+		2kx \left( 1 - \dfrac{L}{\sqrt{L^2 + x^2}} \right) &= \dfrac{2k \cdot 0}{L + 0}x + \dfrac{kL}{(L + 0)^3}x^3 + \mathcal{O}(x^5) \\
+		&= \dfrac{k}{L^2}x^3 + \mathcal{O}(x^5) \\
+		&\approx \dfrac{k}{L^2}x^3,
+	\end{align*}
+	so the equation \eqref{eq:problem2:h_is_0} behaves approximately like
+	\begin{align*}
+		mx'' + \dfrac{k}{L^2}x^3 &= 0 \\
+		x'' + \dfrac{k}{mL^2}x^3 &= 0.
+	\end{align*}
+	
+	This reveals that while the linear stiffness is zero, there is a cubic restoring force. The actual system will experience oscillatory, bounded motion as the springs stretch and pull back. The linearized model completely fails to capture this restoring force, making it a terrible approximation for any non-trivial initial conditions.
+	
+	As a result:
+	\begin{itemize}
+		\item The linearized model predicts no oscillation (only straight-line motion),
+		\item The nonlinear system still exhibits bounded motion due to the cubic restoring force.
+	\end{itemize}
+	
+	Therefore, for any initial conditions other than
+	\begin{equation*}
+		\begin{cases}
+			x(0) &= 0 \\
+			x'(0) &= 0
+		\end{cases},
+	\end{equation*}
+	the solution of the linearized equation differs qualitatively from the true solution of the nonlinear equation.
+	
+	Hence, the linearized equation is a poor approximation when $h = 0$, because it fails to capture the dominant restoring mechanism of the system.
+	
+	\section{Problem 3: The Difference in Accuracy between the Nonlinear and Linearized Equations}
+	\subsection{Problem description}
+	Subject to the initial conditions $x(0) = 0$, $x'(0) = 1$, draw the graph of the numerical approximation of the solution of \eqref{eq:1} for $0 \le t \le 30$. On the same set of coordinate axes, draw the graph of the solution of the linearized equation using the same initial conditions. Do this for each of the following sets of parameter values:
+	
+	\begin{enumerate}[label=\textbf{\color{blue}\roman*.}]
+		\item $m = 1, L = 1, k = 1$, and $h = 1$
+		\item $m = 1, L = 1, k = 1$, and $h = 0.5$
+		\item $m = 1, L = 1, k = 1$, and $h = 0.1$
+	\end{enumerate}
+	
+	Compare the accuracy of the period length and amplitude exhibited by the solution of the linearized equation to the period length and amplitude of the solution of the nonlinear equation as the value of $h$ decreases.
+	
+	\subsection{Solution of the Linearized Equation with Initial Conditions}
+	
+	Using the equation \eqref{eq:problem2:answer}, divide both sides by $m$ $(m \ne 0)$, we get
+	\begin{equation}
+		x'' + \dfrac{2kh}{m(L + h)}x = 0. \label{eq:problem3:og}
+	\end{equation}
+	
+	Let $\omega^2 = \dfrac{2kh}{m(L + h)}$, \eqref{eq:problem3:og} becomes
+	\begin{equation}
+		x'' + \omega^2 x = 0. \label{eq:problem3:main}
+	\end{equation}
+	
+	\eqref{eq:problem3:main} is a \textbf{``Linear Homogeneous Equations
+	with Constant Coefficients"}; therefore, to solve it, we have to use the theorem:
+	
+	\begin{mytheo}{Solution of Linear Homogeneous Equations with Constant Coefficients {\hypersetup{citecolor=white}{\cite{mainbook}}}}{solution-linear-homogeneous}
+		Let $\lambda_1$ and $\lambda_2$ be the roots of the characteristic equation
+		\begin{equation*}
+			a\lambda^2 + b\lambda + c = 0.
+		\end{equation*}
+		
+		Then the general solution of $ay'' + by' + cy = 0$ is
+		\begin{align}
+			y &= c_1 e^{\lambda_1 t} + c_2 e^{\lambda_2 t}, & \text{if } \lambda_1 \text{ and } \lambda_2 \text{ are real, } \lambda_1 \neq \lambda_2, \\
+			y &= c_1 e^{\lambda_1 t} + c_2 t e^{\lambda_1 t}, & \text{if } \lambda_1 = \lambda_2, \\
+			y &= c_1 e^{\mu t} \cos vt + c_2 e^{\mu t} \sin vt, & \text{if } \lambda_1 = \mu + iv \text{ and } \lambda_2 = \mu - iv. \label{eq:problem3:general_complex_solution}
+		\end{align}
+		
+		In each case, the corresponding general solution of $\mathbf{x}' = \begin{pmatrix} 0 & 1 \\ -c/a & -b/a \end{pmatrix} \mathbf{x}$, is
+		\begin{equation*}
+			\mathbf{x} = \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} y \\ y' \end{pmatrix}.
+		\end{equation*}
+		
+		Thus
+		\begin{align}
+			\mathbf{x} &= c_1 e^{\lambda_1 t} \begin{pmatrix} 1 \\ \lambda_1 \end{pmatrix} + c_2 e^{\lambda_2 t} \begin{pmatrix} 1 \\ \lambda_2 \end{pmatrix}, & \text{if } \begin{cases}
+				\lambda_1, \lambda_2 \in \mathbb{R} \\
+				\lambda_1 \neq \lambda_2
+			\end{cases}, \\[10pt]
+			\mathbf{x} &= c_1 e^{\lambda_1 t} \begin{pmatrix} 1 \\ \lambda_1 \end{pmatrix} + c_2 e^{\lambda_1 t} \begin{pmatrix} t \\ 1 + \lambda_1 t \end{pmatrix}, & \text{if } \lambda_1 = \lambda_2, \\[10pt]
+			\mathbf{x} &= c_1 e^{\mu t} \begin{pmatrix} \cos vt \\ \mu \cos vt - v \sin vt \end{pmatrix} + c_2 e^{\mu t} \begin{pmatrix} \sin vt \\ \mu \sin vt + v \cos vt \end{pmatrix}, & \text{if } \begin{cases} \lambda_1 = \mu + iv \\ \lambda_2 = \mu - iv \end{cases}.
+		\end{align}
+	\end{mytheo}
+	
+	According to the theorem, the characteristic equation of \eqref{eq:problem3:main} is
+	\begin{align*}
+		\lambda^2 + \omega^2 &= 0 \\
+		\lambda^2 &= -\omega^2 \\
+		\lambda &= \pm \sqrt{-\omega^2} \\
+		\lambda &= \pm \sqrt{-1} \cdot \sqrt{\omega^2} \\
+		\lambda &= 0 \pm i \cdot \omega.
+	\end{align*}
+	
+	After evaluating the equation, we get
+	\[
+	\begin{cases}
+		\lambda_1 = 0 + i \cdot \omega \\
+		\lambda_2 = 0 - i \cdot \omega \\
+	\end{cases}
+	\Rightarrow
+	\begin{cases}
+		\mu = 0 \\
+		v = \omega
+	\end{cases}.
+	\]
+	
+	Using the \eqref{eq:problem3:general_complex_solution} equation, plug in the $\mu$ and $v$, the solution of \eqref{eq:problem3:main} is
+	\begin{align*}
+		x(t) &= c_1 e^{\mu t} \cos vt + c_2 e^{\mu t} \sin vt \\
+		&= c_1 e^{0t} \cos{\omega t} + c_2 e^{0t} \sin{\omega t} \\
+		&= c_1 \cos{\omega t} + c_2 \sin{\omega t}.
+	\end{align*}
+	
+	According to the statement, we solve the Cauchy problem using the initial conditions $x(0) = 0$, $x'(0) = 1$.
+	
+	Subject to the condition $x(0) = 0$,
+	\begin{align*}
+		x(0) &= c_1 \cos{0\omega} + c_2 \sin{0\omega} \\
+		&= c_1 \cdot 1 + c_2 \cdot 0\\
+		&= c_1 + 0 \\
+		0 &= c_1 \\
+		c_1 &= 0.
+	\end{align*}
+	
+	Subject to the condition $x'(0) = 1$,
+	\begin{align*}
+		x(t) &= c_1 \cos{\omega t} + c_2 \sin{\omega t} \\
+		x'(t) &= -c_1 \omega \sin{\omega t} + c_2 \omega \cos{\omega t} \\
+		x'(0) &= -c_1 \omega \sin{0\omega} + c_2 \omega \cos{0\omega} \\
+		1 &= -c_1 \omega \cdot 0 + c_2 \omega \cdot 1 \\
+		1 &= 0 + c_2 \omega \\
+		c_2 &= \dfrac{1}{\omega}.
+	\end{align*}
+	
+	In conclusion, the solution of \eqref{eq:problem3:main} subjecting to the initial conditions $x(0) = 0$, $x'(0) = 1$ is
+	\begin{equation}
+		x(t) = \dfrac{1}{\omega} \sin{\omega t}, \text{ with } \omega^2 = \dfrac{2kh}{m(L + h)}. \label{eq:problem3:sin_equation}
+	\end{equation}
+	
+	\subsection{The graphs of True Approximation Solution and Linearized Equation Solution}
+	We have the original equation,
+	\begin{equation*}
+		mx'' + 2kx \left[1 - \frac{L}{\sqrt{(L + h)^2 + x^2}}\right] = 0,
+	\end{equation*}
+	and the linearized function, \eqref{eq:problem3:sin_equation},
+	\begin{equation*}
+		x(t) = \dfrac{1}{\omega} \sin{\omega t}, \text{ with } \omega^2 = \dfrac{2kh}{m(L + h)}.
+	\end{equation*}
+	
+	The values of the nonlinear equation cannot be obtained in closed form; therefore, numerical methods are required. In this work, the computations were carried out using \textbf{SciPy}\footnote{\oldhref{https://scipy.org}{SciPy} is a free and open-source Python library used for scientific computing and technical computing.}, which provides efficient solvers for nonlinear ordinary differential equations.
+	
+	The implementation details, including the full source code used for the simulations and precomputed datasets, are provided in \textit{\href{https://github.com/PanyoPie/VNUHUS-MAT2403-ODE}{\underline{\textit{My Github Repository}}}} \cite{github_repo}. This allows the results to be reproduced and verified.
+	
+	Additionally, the precomputed datasets generated from these simulations can also be changed and regenerated, the actions are available in \href{https://colab.research.google.com/drive/1YV1Vy_3rmTcposOM7Q6AzqLgZGbPA0Px}{\underline{\textit{My Google Colab Research}}} \cite{colab}. These datasets were used for plotting and further analysis throughout the report.
+	
+	These are plots for each of the following sets of parameter values:
+	\begin{enumerate}[label=\textbf{\color{blue}\roman*.}]
+		\item $m = 1, L = 1, k = 1, h = 1$
+		\item $m = 1, L = 1, k = 1, h = 0.5$
+		\item $m = 1, L = 1, k = 1, h = 0.1$
+	\end{enumerate}
+	
+	Each figure consists of $2$ graphs, which are nonlinear and linear, respectively.
+	
+	Configurations for each graph:
+	\begin{itemize}
+		\item \textbf{Nonlinear}: \textcolor{blue}{Thin dashed blue line.}
+		\item \textbf{Linear}: \textbf{\textcolor{red}{Thick red line.}}
+	\end{itemize}
+	
+	\newcommand{\myplot}[4]{
+		\begin{tikzpicture}
+			\begin{axis}[
+				axis lines=middle,
+				xlabel={$t$},
+				ylabel={$x(t)$},
+				every axis y label/.style={
+					at={(0,1)},
+					anchor=south west,
+				},
+				xmin=0, xmax=31,
+				ymin=-#3, ymax=#3,
+				width=15cm,
+				height=#4cm,
+				scale only axis,
+				legend pos=north east
+				]
+				
+				% Nonlinear
+				\addplot[
+				blue,
+				thick,
+				dashed
+				]
+				table {#1};
+				\addlegendentry{Nonlinear}
+				
+				% Linear
+				\addplot[
+				red,
+				ultra thick,
+				]
+				table {#2};
+				\addlegendentry{Linear}
+				
+			\end{axis}
+		\end{tikzpicture}
+	}
+
+	\begin{figure}[H]
+		\myplot{nonlinear_h1.dat}{linear_h1.dat}{1.2}{6} \\
+		\centering \small $m = 1, L = 1, k = 1, h = 1$
+		
+		\caption{Nonlinear and Linear plot solutions for $h = 1$.}
+	\end{figure}
+
+	\begin{figure}[H]
+		\myplot{nonlinear_h2.dat}{linear_h2.dat}{1.4}{8} \\
+		\centering \small $m = 1, L = 1, k = 1, h = 0.5$
+		
+		\caption{Nonlinear and Linear plot solutions for $h = 0.5$.}
+	\end{figure}
+
+	\begin{figure}[H]
+		\myplot{nonlinear_h3.dat}{linear_h3.dat}{2.6}{10} \\
+		\centering \small $m = 1, L = 1, k = 1, h = 0.1$
+		
+		\caption{Nonlinear and Linear plot solutions for $h = 0.1$.}
+	\end{figure}
+
+	
+	\subsection{Comparative analysis of Nonlinear and Linearized Models}
+	
+	The accuracy of the linearized approximation is evaluated by comparing the numerical solution of the nonlinear equation \eqref{eq:1} with the analytical solution of the linearized equation \eqref{eq:problem3:main} under the initial conditions $x(0) = 0$ and $x'(0) = 1$. As the spring stretch $h$ gets smaller, the two models start to behave differently.
+	
+	\subsubsection{Observation of Cases}
+	
+	Three distinct cases are analyzed for the interval $0 \le t \le 30$ with parameters $m=1, L=1, k=1$:
+	
+	\begin{enumerate}[label=\textbf{Case \color{blue}\roman*.}]
+		\item \textbf{High Stretch ($h = 1$)} \\
+		The springs are pulled tight. In this case, the linear model predicts a smooth wave with an amplitude of $1$ and a steady frequency. The real nonlinear model matches this almost perfectly. When the springs are tight, the ``linear" method is a great tool.
+		
+		\item \textbf{Medium Stretch ($h = 0.5$)} \\
+		The linearized frequency reduces to $\omega \approx 0.816$ rad/s ($A \approx 1.22$\footnote{$A$ stands for amplitude, which is the coefficient of the sine (or cosine) term and determines the maximum displacement of the system from its equilibrium position. In this case, $A = 1 / \omega$.}). You will notice that the nonlinear solution starts to move a bit faster (shorter period) than the linear one. A phase drift becomes apparent; the nonlinear solution oscillates faster than the linear model. This indicates that as the mass moves, the geometric stretching of the springs provides a ``hardening" effect that the linear model fails to capture.
+		
+		\item \textbf{Low Stretch ($h = 0.1$)} \\
+		The linearized model predicts $\omega \approx 0.426$ rad/s and a large amplitude $A \approx 2.34$. Here, significant divergence occurs. The linear model vastly overestimates the period and the amplitude, as it ignores the $x^3$ cubic restoring force which becomes the primary mechanism for returning the mass to equilibrium.
+	\end{enumerate}
+	
+	\subsubsection{Summary of Model Accuracy}
+	
+	The following table summarizes the degradation of the linear model's predictive power as $h$ approaches zero:
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|l|m{3cm}|m{7cm}|}
+			\hline
+			\textbf{Metric} & \textbf{Trend ($h \to 0$)} & \textbf{Physical Explanation} \\ \hline
+			
+			Period Accuracy & Decreases &
+			The linear model predicts the period will approach infinity. The nonlinear system remains periodic due to cubic stiffness. \\ \hline
+			
+			Amplitude Accuracy & Decreases &
+			The linear model overestimates displacement as linear stiffness vanishes, while $x^3$ terms bound the motion. \\ \hline
+			
+		\end{tabular}
+		\caption{Impact of decreasing pre-tension on linearization accuracy.}
+	\end{table}
+	
+	\subsection{Conclusion}
+	
+	The linearized approximation is only valid when $h \gg 0$ or for infinitesimally small displacements. When $h$ is small, the linear component of the restoring force $f'(0)x$ becomes negligible relative to the higher-order terms (specifically the $x^3$ term). Consequently, the linear model fails to represent the true potential well of the system, leading to unrealistic predictions of the system's dynamic response.
+
+	\cleardoublepage
+	\refstepcounter{chapter}
+	\phantomsection
+	\addcontentsline{toc}{chapter}{\numberline{\thechapter}References}
+	
+	\begin{thebibliography}{9}
+		\bibitem{mainbook}
+		James R. Brannan and William E. Boyce and Mark A. McKibben (2015) \emph{Differential Equations: An Introduction to Modern Methods and Applications}, Wiley, 3rd edition.
+		
+		\bibitem{openstax_newton2}
+		OpenStax (2023) \textit{Newton's Second Law}, LibreTexts Physics.
+		\begin{flushleft}
+			\small
+			Available online at: \\
+			\url{https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/Book\%3A_University_Physics_I_-_Mechanics_Sound_Oscillations_and_Waves_(OpenStax)/05\%3A_Newton's_Laws_of_Motion/5.04\%3A_Newton's_Second_Law}
+		\end{flushleft}
+		
+		\bibitem{harmonic_oscialltor}
+		Chris Meyer, at Math 24: Ordinary Differential Equations (23/05/2008) \emph{The Harmonic Oscillator}, University of Washington.
+		\begin{flushleft}
+			\small
+			Available online at: \\ 
+			\url{https://staff.washington.edu/seattle/physics227/reading/reading-2b.pdf}
+		\end{flushleft}
+		
+		\bibitem{github_repo}
+		Nguyễn Đức Tuân (03/2026) \emph{Github Repository:} \texttt{VNUHUS-MAT2403-ODE}, Github.
+		\begin{flushleft}
+			\small
+			Available online at: \\ 
+			\url{https://github.com/PanyoPie/VNUHUS-MAT2403-ODE} \\
+			Short link: \\
+			\url{https://s.tunaa.io.vn/mat2403}
+		\end{flushleft}
+		
+		\bibitem{colab}
+		Nguyễn Đức Tuân (03/2026) \texttt{ODE-Problem\_3-DataGeneration.ipynb}, Google Colab Reseach.
+		\begin{flushleft}
+			\small
+			Available online at: \\ 
+			\url{https://colab.research.google.com/drive/1YV1Vy_3rmTcposOM7Q6AzqLgZGbPA0Px} \\
+			Short link: \\
+			\url{https://s.tunaa.io.vn/colabode}
+		\end{flushleft}
+	\end{thebibliography}
+\end{document}
