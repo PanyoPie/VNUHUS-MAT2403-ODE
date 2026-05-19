@@ -1,0 +1,84 @@
+\begin{tikzpicture}[scale=1.1]
+	\def\H{3}        % vertical half distance
+	\def\X{3}        % horizontal displacement
+	\def\massw{1}
+	\def\massh{1}
+	
+	\def\floorw{1}
+	\def\ceilw{1}
+	
+	\def\tip{Stealth[length=5pt, inset=2pt]}
+	
+	% Ceiling and floor
+	\draw[thick] (-\ceilw,\H+0.8) -- (\ceilw,\H+0.8);
+	\foreach \x in {-0.9,-0.7,...,0.9}
+	\draw[thick] (\x,\H+0.8) -- ++(0.2,0.2);
+	
+	\draw[thick] (-\floorw,-\H-0.8) -- (\floorw,-\H-0.8);
+	\foreach \x in {-0.9,-0.7,...,0.9}
+	\draw[thick] (\x,-\H-0.8) -- ++(0.2,-0.2);
+	
+	% Fixed support points
+	\filldraw (0,\H+0.8) circle (1.5pt);
+	\filldraw (0,-\H-0.8) circle (1.5pt);
+	
+	% Dashed center line
+	\draw[dashed] (0,\H+0.8) -- (0,-\H-0.8);
+	
+	% Mass block
+	\draw[fill=blue!50, thick]
+	(\X-\massw/2, -\massh/2) rectangle 
+	(\X+\massw/2, \massh/2);
+	
+	\node at (\X,0) {$m$};
+	
+	% Springs
+	% --- Top spring ---
+	\draw[line width=2pt,
+	decoration={
+		coil,
+		aspect=0.6,
+		segment length=10pt,
+		amplitude=6pt,
+		pre length=6pt,
+		post length=6pt
+	},
+	decorate]
+	(0,\H+0.8) -- (\X,\massh/2 + 0.1);
+	
+	% --- Bottom spring ---
+	\draw[line width=2pt,
+	decoration={
+		coil,
+		aspect=0.6,
+		segment length=10pt,
+		amplitude=6pt,
+		pre length=6pt,
+		post length=6pt
+	},
+	decorate]
+	(0,-\H-0.8) -- (\X,-\massh/2 - 0.1);
+	
+	\draw[fill=gray, thick] (\X-0.3, \massh/2) rectangle (\X+0.3, \massh/2+0.1);
+	\draw[fill=gray, thick] (\X-0.3, -\massh/2) rectangle (\X+0.3, -\massh/2-0.1);
+	
+	% Horizontal displacement arrow
+	\draw[blue!80, -\tip, thick]
+	(0,0) -- (\X-\massw/2,0);
+	
+	\node[above] at (\X/2-\massw/4,0) {$x$};
+	
+	% Vertical labels
+	\def\arrowh{0.2}
+	\draw[thick] (-0.7,\arrowh) -- (-0.3,\arrowh);
+	\draw[\tip-\tip] (-0.5,\H+0.8) -- (-0.5,\arrowh);
+	\node[left] at (-0.6,{\arrowh + (\H+0.8 - \arrowh) / 2}) {$L+\Delta y$};
+	
+	\draw[\tip-\tip] (-0.5,\arrowh) -- (-0.5,-\H-0.8);
+	\node[left] at (-0.6,{\arrowh - (\H+0.8 + \arrowh) / 2}) {$L+\Delta y$};
+	
+	% Spring constants
+	\node at (2,2.4) {$k$};
+	\node at (2,-2.4) {$k$};
+	
+\end{tikzpicture}

@@ -1,0 +1,117 @@
+\documentclass[12pt, a4paper]{report}
+
+% --- Essential Packages ---
+\usepackage{fontspec}
+\usepackage[vietnamese,english]{babel}
+% \setmainfont{Times New Roman}
+\usepackage{geometry}       % Document margins
+\geometry{a4paper, margin=1in}
+
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, arrows.meta, positioning, calc, angles, quotes}
+
+% --- Graphics and Tables ---
+\usepackage{float}
+\usepackage{array}       % Include images
+\usepackage{graphicx}       % Include images
+\graphicspath{{images/}}    % Path to images folder
+\usepackage{booktabs}       % Professional table formatting
+\usepackage{caption}        % Customizing captions
+\usepackage{subcaption}     % Subfigures
+\usepackage{physics}
+
+% --- Math and Symbols ---
+\usepackage{amsmath, amssymb, amsfonts, amsthm} % Math formatting
+
+% --- Formatting and Utilities ---
+\usepackage{parskip}        % Better paragraph spacing (no indentation)
+\usepackage{fancyhdr}       % Custom headers/footers
+\usepackage[hidelinks]{hyperref} % Clickable links without boxes
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=magenta,
+	urlcolor=blue,
+	citecolor=blue
+}
+\let\oldhref\href
+\renewcommand{\href}[2]{\oldhref{#1}{#2}\footnote{\url{#1}}}
+
+
+\usepackage{enumitem}
+\usepackage{pgfplots}
+\usepackage{derivative}
+\usepackage{tocloft}
+
+\setlength{\extrarowheight}{2pt}
+
+\AtBeginDocument{\renewcommand{\bibname}{References}}
+
+% --- Document Information ---
+\title{Linearization of a Nonlinear Mechanical System}
+\author{Nguyễn Đức Tuân}
+\date{\today}
+
+\pgfplotsset{compat=1.18}
+\setlist[enumerate]{
+	leftmargin=*,
+	listparindent=0pt,
+	itemindent=0pt
+}
+
+%\usepackage{letltxmacro}
+%\LetLtxMacro{\originaleqref}{\eqref}
+%\renewcommand{\eqref}{\textcolor{blue}{\originaleqref}}
+%%\renewcommand{\eqref}{Eq.~\originaleqref}
+\usepackage{letltxmacro}
+
+%\LetLtxMacro{\originaleqref}{\eqref}
+%\renewcommand{\eqref}{\textcolor{blue}{\originaleqref}}
+%\newcommand{\figref}{Figure.~\ref}
+%\newcommand{\secref}{Section~\ref}
+\renewcommand{\eqref}[1]{\hyperref[#1]{\color{blue}(\ref{#1})}}
+\newcommand{\figref}[1]{\hyperref[#1]{\color{blue}Figure.~\ref{#1}}}
+\newcommand{\secref}[1]{\hyperref[#1]{\color{blue}Section~\ref{#1}}}
+\newcommand{\problemref}[1]{\hyperref[#1]{\color{blue}Problem~\ref{#1}}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{theorems}
+
+\newtcbtheorem{mytheo}{Theorem}%
+{colback=blue!8,colframe=blue!90,fonttitle=\bfseries}{th}
+
+\begin{document}
+	\input{title_page}
+	
+	\newpage
+	\input{declaration_of_authorship}
+	
+	\newpage
+	\input{abstract_page}
+
+	\newpage
+	\tableofcontents
+	\newpage
+	\listoffigures
+	\vspace{1cm}
+	\listoftables
+	
+	\newpage
+	\chapter{Introduction}
+	\input{project_description}
+	
+	\chapter{Problems}
+	\input{problem1}
+	\input{problem2}
+	\input{problem3}
+	\input{problem4}
+	
+
+	\cleardoublepage
+	\refstepcounter{chapter}
+	\phantomsection
+	\addcontentsline{toc}{chapter}{\numberline{\thechapter}References}
+	
+	\input{bibliography}
+\end{document}

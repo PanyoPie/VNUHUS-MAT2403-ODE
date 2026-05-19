@@ -1,0 +1,62 @@
+\section{Problem 1: Derivation of the Deterministic Stock Price Model}
+\subsection{Description}
+Show that Euler's method applied to the differential equation
+\begin{equation}
+	\dv{S}{t} = \mu S
+	\label{c2:p1:og}
+\end{equation}
+yields \eqref{c1:model} in the absence of random disturbances, that is, when $\sigma = 0$.
+
+\subsection{Solution}
+\begin{mytheo}{Numerical Approximations: Euler's Formula {\hypersetup{citecolor=white}{\cite{mainbook}}}}{euler-formula}
+	\small Suppose the solution of the initial value problem
+	\begin{equation*}
+		\begin{cases} 
+			\displaystyle\dv{y}{t} = f(t, y) \\ 
+			y(t_0) = y_0 
+		\end{cases}
+	\end{equation*}
+	is denoted by $y = \phi(t)$ and you have a sequence of points $t_0 < t_1 < t_2 < \cdots < t_n < \cdots$. For $n = 0, 1, 2, \dots$, we have the following:\\
+	
+	\textit{Approximation of $y = \phi(t)$ at $t = t_{n+1}$:}
+	\begin{equation}
+		y_{n+1} = y_n + f(t_n, y_n)(t_{n+1} - t_n).
+		\label{c2:t1:p1:approximation}
+	\end{equation}
+	
+	\textit{Linear approximation of $\phi(t)$ on the interval $[t_n, t_{n+1}]$:}
+	\begin{equation*}
+		y(t) = y_n + f(t_n, y_n)(t - t_n).
+	\end{equation*}
+	
+	\textit{Special case:}
+	If a uniform step size $h$ is used, then $t_{n+1} - t_n = h$, for all $n$, and so \eqref{c2:t1:p1:approximation} simplifies to
+	\begin{equation*}
+		y_{n+1} = y_n + hf(t_n, y_n).
+	\end{equation*}
+\end{mytheo}
+
+Let the function $f(t, S) = \displaystyle \dv{S}{t} = \mu S$. Using a uniform step size $h = \Delta t = t_{n+1} - t_n$, the Euler approximation for $S_{n+1}$ is
+\begin{equation*}
+	S_{n+1} = S_n + \Delta t f(t_n, S_n).
+\end{equation*}
+
+Substituting $f(t_n, S_n) = \mu S_n$, we get
+\begin{equation}
+	S_{n+1} = S_n + \mu S_n \Delta t.
+	\label{p1:euler_result}
+\end{equation}
+
+Now, we examine the provided discrete model for the change in stock price, which is equation \eqref{c1:model},
+\begin{equation*}
+	S_{n+1} = S_n + \mu S_n \Delta t + \sigma S_n \varepsilon_{n+1} \sqrt{\Delta t}
+\end{equation*}
+
+In the absence of random disturbances, we set the volatility parameter $\sigma = 0$. The equation reduces to
+\begin{align*}
+	S_{n+1} &= S_n + \mu S_n \Delta t + 0 \cdot S_n \varepsilon_{n+1} \sqrt{\Delta t} \\
+	&= S_n + \mu S_n \Delta t + 0 \\
+	&= S_n + \mu S_n \Delta t.
+\end{align*}
+
+This is identical to the result obtained via Euler's method, which is equation \eqref{p1:euler_result}. Thus, the deterministic part of the stock price model is equivalent to a first-order numerical approximation of the continuous exponential growth equation \eqref{c2:p1:og}.

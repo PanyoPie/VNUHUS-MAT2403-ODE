@@ -1,0 +1,110 @@
+\section{Problem 4: Variance Reduction by Antithetic Variates}
+\subsection{Description}
+A simple and widely used technique for increasing the efficiency and accuracy of Monte Carlo simulations in certain situations with little additional increase in computational complexity is the method of antithetic variates. For each $k = 1, \dots, M$, use the sequence $\left\{ \varepsilon_1^{(k)}, \dots, \varepsilon_{N-1}^{(k)} \right\}$ in \eqref{c1:estimation} to simulate a payoff $f(S_N^{(k+)})$ and also use the sequence $\left\{ -\varepsilon_1^{(k)}, \dots, -\varepsilon_{N-1}^{(k)} \right\}$ in \eqref{c1:estimation} to simulate an associated payoff $f(S_N^{(k-)})$. Thus, the payoffs are simulated in pairs $\left\{ f(S_N^{(k+)}), f(S_N^{(k-)}) \right\}$. A modified Monte Carlo estimate is then computed by replacing each payoff $f(S_N^{(k)})$ in \eqref{c1:monte_carlo_estimation} by the average $\dfrac{f(S_N^{(k+)}) + f(S_N^{(k-)})}{2}$,
+\begin{equation}
+	\hat{C}_{AV}(s) = \frac{\dfrac{1}{M} \displaystyle\sum_{k=1}^M \frac{f(S_N^{(k+)}) + f(S_N^{(k-)})}{2}}{(1 + r \Delta t)^N}.
+	\label{c2:p4:1}
+\end{equation}
+
+Use the parameters specified in \problemref{c3} to compute several (say, $20$ or so) option price estimates using \eqref{c1:monte_carlo_estimation} and an equivalent number of option price estimates using \eqref{c2:p4:1}. For each of the two methods, plot a histogram of the estimates and compute the mean and standard deviation of the estimates. Comment on the accuracies of the two methods.
+
+\subsection{Simulation}
+To improve the efficiency of the Monte Carlo simulation, we implement the method of \textbf{Antithetic Variates}. For each simulated path using random shocks $\{\varepsilon_n\}$, we simultaneously compute a path using $\{-\varepsilon_n\}$. This introduces a negative correlation between pairs of payoffs, which significantly reduces the variance of the sample mean.
+
+Using the same parameters specified in \problemref{c3}, we generated 20 independent estimates for both the standard Monte Carlo method and the antithetic variates method.
+
+\begin{table}[ht!]
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		\textbf{Metric} & \textbf{Standard Monte Carlo} & \textbf{Antithetic Variates} \\
+		\hline
+		Mean Estimate $\bar{C}$ & 3.2084 & 3.2065 \\
+		\hline
+		Standard Deviation $\sigma_{\hat{C}}$ & 0.0412 & 0.0083 \\
+		\hline
+	\end{tabular}
+	\caption{Statistical Comparison of Estimation Methods}
+\end{table}
+
+%\begin{figure}[ht!]
+%	\centering
+%	\begin{tikzpicture}
+%		\begin{axis}[
+%			width=0.7\textwidth,
+%			height=5cm,
+%			title={Distribution of Option Price Estimates},
+%			xlabel={Estimated Price $\hat{C}$},
+%			ylabel={Frequency},
+%			ybar,
+%			bar width=10pt,
+%			grid=major,
+%			legend style={at={(0.5,-0.25)}, anchor=north, legend columns=-1}
+%			]
+%			% Note: In actual LaTeX, use 'ybar interval' or external hist data
+%			% This is a conceptual representation of the exported CSV results
+%\addplot+[
+%hist,
+%fill=blue!30,
+%draw=blue!60!black
+%]
+%table[y=Standard] {antithetic_results.csv};
+%
+%\addplot+[
+%hist,
+%fill=red!30,
+%draw=red!60!black
+%]
+%table[y=Antithetic] {antithetic_results.csv};
+%			\legend{Standard MC, Antithetic Variates}
+%		\end{axis}
+%	\end{tikzpicture}
+%	\caption{Histogram comparison illustrating the variance reduction.}
+%\end{figure}
+
+\begin{figure}[h]
+	\centering
+	
+	\begin{tikzpicture}
+		\begin{axis}[
+			width=0.8\textwidth,
+			ybar,
+			xlabel={Option Price Estimate},
+			ylabel={Frequency},
+			legend style={at={(0.97,0.97)},anchor=north east},
+			ymin=0,
+			grid=major
+			]
+			
+			\addplot+[
+			hist={
+				bins=10
+			},
+			fill=blue!30,
+			draw=blue!60!black
+			]
+			table[y=Standard,col sep=comma] {antithetic_results.csv};
+			
+			\addlegendentry{Standard Monte Carlo}
+			
+			\addplot+[
+			hist={
+				bins=10
+			},
+			fill=red!30,
+			draw=red!60!black
+			]
+			table[y=Antithetic,col sep=comma] {antithetic_results.csv};
+			
+			\addlegendentry{Antithetic Variates}
+			
+		\end{axis}
+	\end{tikzpicture}
+	
+	\caption{Histogram of option price estimates obtained using the standard Monte Carlo method and the antithetic variates method.}
+\end{figure}
+
+\subsection{Analysis and Comments on Accuracy}
+As shown in the statistical summary, both methods converge to the same mean. However, the \textbf{Standard Deviation} of the Antithetic Variates method is significantly lower than that of the Standard Monte Carlo method. 
+
+By utilizing the symmetry of the normal distribution ($\varepsilon$ and $-\varepsilon$ are equally likely), the antithetic method cancels out much of the sampling error. This results in a tighter clustering of estimates around the true value, effectively increasing the precision of the simulation without doubling the number of random number generations.
